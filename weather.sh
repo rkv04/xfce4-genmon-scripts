@@ -1,11 +1,12 @@
-#!/bin/bas
+#!/bin/bash
 
-source .env
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/.env"
 
 LAT="56.01"
 LON="92.77"
 
-URL="https://api.openweathermap.org/data/2.5/weather?lat=$LAT&lon=$LON&APPID=$API_KEY&units=metric"
+URL="https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&APPID=${API_KEY}&units=metric"
 
 while true; do
     data=$(curl -s $URL)
