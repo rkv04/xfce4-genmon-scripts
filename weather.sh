@@ -54,5 +54,5 @@ icon_code=$(echo "$data" | jq -r '.weather[0].icon')
 weather_icon=$(get_weather_icon_by_code $icon_code)
 
 
-echo "$weather_icon ${celsius_int}°C ${wind_speed_int} m/s ${wind_direction_short} $sunset_time ↓"
+echo " $weather_icon ${celsius_int}°C ${wind_speed_int} m/s ${wind_direction_short} $sunset_time ↓"
 
