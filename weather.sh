@@ -4,9 +4,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/.env"
 
 LAT="56.01"
-LON="92.77"
+LON="92.77" 
 
 URL="https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&APPID=${API_KEY}&units=metric"
+
 
 MAX_REQUEST_ATTEMPTS=5
 REQUEST_ATTEMPT=0
@@ -27,7 +28,7 @@ done
 
 get_wind_direction_short() {
    local deg=$1
-   local directions=("N" "NE" "E" "SE" "S" "SW" "W" "NW")
+   local directions=("↓" "↙" "←" "↖" "↑" "↗" "→" "↘")
    local index=$(( (($deg + 22) % 360) / 45 ))
    echo "${directions[$index]}"
 }
@@ -46,8 +47,11 @@ get_weather_icon_by_code() {
    esac
 }
 
-celsius_temp=$(echo "$weather_json" | jq -r '.main.temp')
-celsius_int=$(echo "$celsius_temp" | awk '{printf "%.0f", $1}')
+temp_raw=$(echo "$weather_json" | jq -r '.main.temp')
+temp=$(echo "$temp_raw" | awk '{printf "%.0f", $1}')
+
+feels_like_raw=$(echo "$weather_json" | jq -r '.main.feels_like')
+feels_like=$(echo "$feels_like_raw" | awk '{printf "%.0f", $1}')
 
 sunset_timestamp=$(echo "$weather_json" | jq -r '.sys.sunset')
 sunset_time=$(date -d "@$sunset_timestamp" +%H:%M)
@@ -58,16 +62,9 @@ wind_speed_int="${wind_speed%.*}"
 wind_deg=$(echo "$weather_json" | jq -r '.wind.deg')
 wind_direction_short=$(get_wind_direction_short $wind_deg)
 
-pressure=$(echo "$weather_json" | jq -r '.main.pressure')
-pressure_hg=$(echo "scale=0; ( $pressure / 1.333 ) + 0.5 / 1" | bc)
-
-humidity=$(echo "$weather_json" | jq -r '.main.humidity')
-
 icon_code=$(echo "$weather_json" | jq -r '.weather[0].icon')
 weather_icon=$(get_weather_icon_by_code $icon_code)
 
 
-echo " ${weather_icon} ${celsius_int}°C ${wind_speed_int} m/s (${wind_direction_short}) ${pressure_hg} mmHg ${humidity}% ${sunset_time} ↓"
-
-
+echo " ${weather_icon} ${temp}°C (${feels_like}) ${wind_speed_int} m/s (${wind_direction_short}) ${sunset_time} ↓"
 
